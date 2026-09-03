@@ -109,7 +109,6 @@ collections:
     folder: src/content/posts
     create: true
     slug: "{{year}}-{{month}}-{{day}}-{{slug}}"
-    preview_path: news/{{slug}}
     sortable_fields: [date, title]
     summary: "{{title}} — {{date | date('MMM D, YYYY')}}"
     fields:
@@ -129,7 +128,7 @@ collections:
     icon: event
     folder: src/content/events
     create: true
-    slug: "{{start}}-{{slug}}"
+    slug: "{{slug}}"
     sortable_fields: [start, title]
     fields:
       - { label: Title, name: title, widget: string }

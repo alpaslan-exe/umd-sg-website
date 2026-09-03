@@ -15,19 +15,23 @@ permissions:
 
 concurrency:
   group: pages
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    env:
-      # Project page by default. To use an org page or custom domain, set
-      # repository variables SITE_URL and BASE_PATH (BASE_PATH "/" for root).
-      SITE_URL: ${{ vars.SITE_URL || format('https://{0}.github.io', github.repository_owner) }}
-      BASE_PATH: ${{ vars.BASE_PATH || format('/{0}', github.event.repository.name) }}
     steps:
       - name: Checkout
         uses: actions/checkout@v7
+      - name: Resolve site URL and base path
+        # Project page by default. To use an org page or custom domain, set
+        # repository variables SITE_URL and BASE_PATH (BASE_PATH "/" for root).
+        env:
+          SITE_URL_VAR: ${{ vars.SITE_URL }}
+          BASE_PATH_VAR: ${{ vars.BASE_PATH }}
+        run: |
+          echo "SITE_URL=${SITE_URL_VAR:-https://${GITHUB_REPOSITORY_OWNER}.github.io}" >> "$GITHUB_ENV"
+          echo "BASE_PATH=${BASE_PATH_VAR:-/${GITHUB_REPOSITORY#*/}}" >> "$GITHUB_ENV"
       - name: Install, build, and upload
         uses: withastro/action@v6
         with:

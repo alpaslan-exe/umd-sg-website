@@ -14,7 +14,7 @@ Student Government and the UM-Dearborn Athletics Department are bringing a Chari
 ## What we know so far
 
 - **When:** Fall 2026. Date to be announced.
-- **Where:** Starting at the Fieldhouse. Route details are being finalized with the university.
+- **Where:** On campus. The route is being finalized with the university.
 - **Who:** Everyone in the Wolverine community. No experience needed.
 - **Why:** Proceeds support a campus cause. Details drop with registration.
 
