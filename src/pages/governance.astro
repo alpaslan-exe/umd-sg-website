@@ -1,0 +1,93 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHead from '../components/PageHead.astro';
+import SectionHead from '../components/SectionHead.astro';
+import { url } from '../lib/url';
+import { getCollection } from 'astro:content';
+const docs = (await getCollection('documents')).sort((a, b) => a.data.order - b.data.order);
+const cats = ['Governing', 'Meetings', 'Elections', 'Resources'] as const;
+---
+<Base title="Governance: Statutes, Rules & Elections" description="The Statutes of the Student Government of UM-Dearborn, a plain-language summary of the rules, meeting procedures, and how elections work.">
+  <PageHead eyebrow="Governance" title="Statutes, rules &amp; elections" lede="Student Government is a constitutionalist, representative democracy. One document governs it: the Statutes (UMDSGS)." />
+
+  <section class="section">
+    <div class="container">
+      <SectionHead eyebrow="Documents" title="Governing documents &amp; resources" />
+      {cats.map((cat) => { const items = docs.filter((d) => d.data.category === cat); return items.length > 0 && (
+        <div style="margin-bottom:2rem">
+          <h3 class="eyebrow eyebrow--inline">{cat}</h3>
+          <div class="grid grid--2">
+            {items.map((d) => (
+              <article class="card"><div class="card__body">
+                <h3><a href={url(d.data.url)} target={d.data.url.startsWith('http') ? '_blank' : undefined} rel="noopener noreferrer">{d.data.title}</a></h3>
+                {d.data.date && <p class="meta">{d.data.date}</p>}
+                {d.data.summary && <p>{d.data.summary}</p>}
+                <p class="cluster" style="margin-top:.4rem">
+                  <a class="btn btn--navy btn--sm" href={url(d.data.url)} target={d.data.url.startsWith('http') ? '_blank' : undefined} rel="noopener noreferrer">Open</a>
+                  {d.data.mirror_url && <a class="btn btn--outline btn--sm" href={d.data.mirror_url} target="_blank" rel="noopener noreferrer">University copy</a>}
+                </p>
+              </div></article>
+            ))}
+          </div>
+        </div>
+      ); })}
+    </div>
+  </section>
+
+  <section class="section section--white" id="rules">
+    <div class="container split split--even">
+      <div class="prose">
+        <SectionHead eyebrow="Rules & regulations" title="The rules in plain language" lede="A summary for members. The Statutes control if anything here differs." />
+        <h3>Membership &amp; attendance</h3>
+        <ul>
+          <li>Senators and executive board members must attend all General Meetings and required events. <strong>Three unexcused absences result in removal from office.</strong> Committee meetings count as half absences and can be excused by the chair.</li>
+          <li>Members hold weekly office hours or serve as a liaison to a student organization.</li>
+          <li>Resigning requires at least ten academic days' written notice unless leadership approves an exception.</li>
+          <li>Fellows may petition for a Senate seat after attending three General Meetings; the Senate votes on each petition.</li>
+        </ul>
+        <h3>Voting &amp; quorum</h3>
+        <ul>
+          <li>Quorum is one-half of total senators (one-third for approving minutes, the agenda, and fellow petitions).</li>
+          <li>Motions pass by a majority of senators present unless the Statutes require more.</li>
+          <li>Amendments to internal operations need a two-thirds Senate vote and the President's signature; a veto is overridden by two-thirds at the next meeting.</li>
+        </ul>
+        <h3>Resolutions</h3>
+        <ul>
+          <li>Any UM student may write a <strong>Legislative Resolution</strong>. It needs a senator sponsor, approval by the relevant committee, a Rules Committee compliance review, and then a Senate majority. The President signs or vetoes within five academic days.</li>
+          <li>The President may issue <strong>Executive Resolutions</strong> within executive authority.</li>
+        </ul>
+        <h3>Conduct</h3>
+        <ul>
+          <li>No hazing or bullying, ever. No discrimination on the basis of race, color, national origin, age, marital status, sex, sexual orientation, gender identity, gender expression, disability, religion, height, weight, or veteran status.</li>
+          <li>SG may not financially support partisan political activity.</li>
+        </ul>
+      </div>
+      <div class="prose">
+        <SectionHead eyebrow="Meeting procedures" title="How a General Meeting runs" lede="Meetings follow Robert's Rules of Order, Newly Revised, wherever the Statutes are silent." />
+        <ol>
+          <li>Call to Order</li>
+          <li>Roll Call (Recording Secretary)</li>
+          <li>Approval of the Agenda</li>
+          <li>Approval of the Minutes</li>
+          <li>Community Concerns (open to any student or campus partner)</li>
+          <li>New Business: elections, swearing-in, fellow petitions, resolutions</li>
+          <li>Officer Updates: advisors, executive board, Senate, committees</li>
+          <li>Committee of the Whole</li>
+          <li>Open Forum</li>
+          <li>Adjournment</li>
+        </ol>
+        <p>Community Concerns is your slot. Any student can come to a General Meeting and raise an issue on the record.</p>
+
+        <SectionHead eyebrow="Elections" title="How elections work" />
+        <p>The Office of Student Life runs elections each March under Title 5 of the Statutes (Matters Electoral). Open seats: <strong>President, Vice President, and 35 Senator seats</strong> across the four colleges.</p>
+        <ul>
+          <li><strong>February:</strong> Intent-to-Run forms open; candidate orientations.</li>
+          <li><strong>Early March:</strong> Intent-to-Run and petition signatures due; endorsement forms.</li>
+          <li><strong>Mid March:</strong> Campaigning begins; Presidential and Vice Presidential debate.</li>
+          <li><strong>Late March:</strong> Two days of online voting; results released.</li>
+        </ul>
+        <p>The 2026–27 cycle ran February 1 to March 27, 2026. Exact dates for the next cycle are posted by the Office of Student Life on the <a href="https://umdearborn.edu/office-student-life/civic-engagement/democratic-engagement/student-government-elections" target="_blank" rel="noopener noreferrer">elections page</a>.</p>
+      </div>
+    </div>
+  </section>
+</Base>

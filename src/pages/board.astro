@@ -1,0 +1,34 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHead from '../components/PageHead.astro';
+import SectionHead from '../components/SectionHead.astro';
+import BoardCard from '../components/BoardCard.astro';
+import { getCollection } from 'astro:content';
+const board = (await getCollection('board')).sort((a, b) => a.data.order - b.data.order);
+const groups = [
+  { key: 'executive', title: 'President, Vice President &amp; Executive Secretary', eyebrow: 'Leadership' },
+  { key: 'directors', title: 'Directors', eyebrow: 'Executive directors' },
+  { key: 'secretaries', title: 'Secretaries', eyebrow: 'Records, budget &amp; correspondence' },
+] as const;
+---
+<Base title="Executive Board" description="Meet the 2026–27 UM-Dearborn Student Government executive board, with a public email for every officer.">
+  <PageHead eyebrow="2026–27" title="Executive Board" lede="The students who run Student Government day to day. Every officer holds weekly office hours in UC 2122 and answers email." />
+  {groups.map((g) => {
+    const members = board.filter((m) => m.data.group === g.key);
+    return members.length > 0 && (
+      <section class="section section--tight">
+        <div class="container">
+          <SectionHead eyebrow={g.eyebrow} title={g.title} />
+          <div class="grid">
+            {members.map((m) => <BoardCard slug={m.id} {...m.data} hasBio={!!m.body} />)}
+          </div>
+        </div>
+      </section>
+    );
+  })}
+  <section class="section section--tight">
+    <div class="container note">
+      <strong>Want to serve?</strong> Executive board positions are filled each spring: President and Vice President by campus-wide election in March, directors and secretaries by presidential nomination and Senate confirmation. Vacancies are announced at General Meetings.
+    </div>
+  </section>
+</Base>

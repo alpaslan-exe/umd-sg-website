@@ -1,0 +1,14 @@
+---
+import Base from '../layouts/Base.astro';
+import { url } from '../lib/url';
+---
+<Base title="Page not found" noindex>
+  <section class="section section--navy" style="min-height:60vh;display:grid;place-items:center;text-align:center">
+    <div class="container">
+      <span class="eyebrow" style="display:inline-block">404</span>
+      <h1>We couldn't find that page.</h1>
+      <p class="lede" style="margin-inline:auto">The old Google Site had different addresses. Try the home page, or tell us what you were looking for.</p>
+      <p class="cluster" style="justify-content:center"><a class="btn btn--maize" href={url('/')}>Home</a> <a class="btn btn--ghost" href={url('/contact')}>Contact</a></p>
+    </div>
+  </section>
+</Base>

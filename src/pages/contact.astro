@@ -1,0 +1,68 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHead from '../components/PageHead.astro';
+import SectionHead from '../components/SectionHead.astro';
+import settings from '../data/settings.json';
+import { url } from '../lib/url';
+import { getCollection } from 'astro:content';
+const board = (await getCollection('board', (m) => !m.data.vacant && !!m.data.email)).sort((a, b) => a.data.order - b.data.order);
+const subject = encodeURIComponent('Message for Student Government');
+---
+<Base title="Contact" description="Email UM-Dearborn Student Government, book time with the President, request a notary appointment, or visit the office in UC 2122.">
+  <PageHead eyebrow="Contact" title="Talk to us" lede="Email any officer directly, book the President, or come to Community Concerns at a General Meeting." />
+  <section class="section">
+    <div class="container split">
+      <div class="stack">
+        <div class="card card--navy"><div class="card__body">
+          <h3>General inquiries</h3>
+          <p>{settings.contact_name}</p>
+          <p><a class="btn btn--maize" href={`mailto:${settings.contact_email}?subject=${subject}`}>Email {settings.contact_email}</a></p>
+        </div></div>
+        <div class="grid grid--2">
+          <div class="card"><div class="card__body">
+            <h3>Meet with the President</h3>
+            <p>Book a one-on-one to raise a concern or pitch an idea.</p>
+            <p><a class="btn btn--navy btn--sm" href={settings.forms.meet_president} target="_blank" rel="noopener noreferrer">Book a meeting</a></p>
+          </div></div>
+          <div class="card"><div class="card__body">
+            <h3>Free notary service</h3>
+            <p>Request an appointment for document notarization.</p>
+            <p><a class="btn btn--navy btn--sm" href={settings.forms.notary} target="_blank" rel="noopener noreferrer">Request notary</a></p>
+          </div></div>
+          <div class="card"><div class="card__body">
+            <h3>Student org presidents</h3>
+            <p>Register for the President's Roundtable.</p>
+            <p><a class="btn btn--navy btn--sm" href={settings.forms.roundtable} target="_blank" rel="noopener noreferrer">Register</a></p>
+          </div></div>
+          <div class="card"><div class="card__body">
+            <h3>SG Hears You</h3>
+            <p>The open, public forum for any campus concern or idea.</p>
+            <p><a class="btn btn--maize btn--sm" href={settings.hears_you_url} target="_blank" rel="noopener noreferrer">Join the group</a></p>
+          </div></div>
+        </div>
+        <div class="card"><div class="card__body">
+          <h3>Visit the office</h3>
+          <p>{settings.office.room}<br />{settings.office.address}, {settings.office.city}</p>
+          <p><strong>Office hours:</strong> {settings.office.hours}</p>
+          <p><strong>General Meetings:</strong> {settings.meeting.schedule}. <a href={url('/events')}>See the calendar.</a></p>
+        </div></div>
+      </div>
+      <div>
+        <SectionHead eyebrow="Direct lines" title="Email an officer" lede="Every executive board member with a listed email." />
+        <ul class="people">
+          {board.map((m) => (
+            <li>
+              <span><strong>{m.data.name}</strong><br /><span class="meta">{m.data.position}</span></span>
+              <a class="btn btn--outline btn--sm" href={`mailto:${m.data.email}`}>Email</a>
+            </li>
+          ))}
+        </ul>
+        <p class="meta">Missing an email? Officer emails are added as they are confirmed each term. Use the general inquiries address in the meantime.</p>
+      </div>
+    </div>
+  </section>
+</Base>
+<style>
+  .people { list-style: none; margin: 0 0 1rem; padding: 0; display: grid; gap: .6rem; }
+  .people li { display: flex; justify-content: space-between; align-items: center; gap: 1rem; background: var(--white); border: 1px solid var(--line); border-radius: 12px; padding: .75rem 1rem; }
+</style>

@@ -1,0 +1,28 @@
+---
+import Base from '../../layouts/Base.astro';
+import { getCollection, render } from 'astro:content';
+import { url, media } from '../../lib/url';
+import { fmtDay } from '../../lib/format';
+export async function getStaticPaths() {
+  const posts = await getCollection('posts', (p) => !p.data.draft);
+  return posts.map((p) => ({ params: { slug: p.id }, props: { p } }));
+}
+const { p } = Astro.props;
+const { Content } = await render(p);
+---
+<Base title={p.data.title} description={p.data.summary} image={p.data.image ? url(p.data.image) : undefined}>
+  <section class="pagehead">
+    <div class="container">
+      <p><a href={url('/news')} style="color:var(--maize)">← All news</a></p>
+      <p class="meta" style="color:rgba(255,255,255,.8)"><time datetime={p.data.date.toISOString()}>{fmtDay(p.data.date)}</time>{p.data.author && <> · {p.data.author}</>}{p.data.tags.length > 0 && <> · {p.data.tags.join(', ')}</>}</p>
+      <h1>{p.data.title}</h1>
+      <p class="lede">{p.data.summary}</p>
+    </div>
+  </section>
+  <section class="section">
+    <div class="container">
+      {p.data.image && <img src={media(p.data.image)} alt={p.data.image_alt ?? ''} style="max-width:720px;border-radius:var(--radius);border:var(--frame) solid var(--maize);margin-bottom:2rem" />}
+      <div class="prose post-body"><Content /></div>
+    </div>
+  </section>
+</Base>

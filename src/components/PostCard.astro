@@ -1,0 +1,14 @@
+---
+import { url, media } from '../lib/url';
+import { fmtDay } from '../lib/format';
+interface Props { slug: string; title: string; date: Date; summary: string; image?: string; image_alt?: string; tags?: string[] }
+const { slug, title, date, summary, image, image_alt, tags = [] } = Astro.props;
+---
+<article class="card">
+  {image && <a class="card__media" href={url(`/news/${slug}`)} tabindex="-1" aria-hidden="true"><img src={media(image)} alt={image_alt ?? ''} loading="lazy" /></a>}
+  <div class="card__body">
+    <p class="meta"><time datetime={date.toISOString()}>{fmtDay(date)}</time>{tags.length > 0 && <> · {tags.join(', ')}</>}</p>
+    <h3><a href={url(`/news/${slug}`)}>{title}</a></h3>
+    <p>{summary}</p>
+  </div>
+</article>

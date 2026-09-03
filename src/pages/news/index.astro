@@ -1,0 +1,17 @@
+---
+import Base from '../../layouts/Base.astro';
+import PageHead from '../../components/PageHead.astro';
+import PostCard from '../../components/PostCard.astro';
+import { getCollection } from 'astro:content';
+const posts = (await getCollection('posts', (p) => !p.data.draft)).sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+---
+<Base title="News" description="Announcements, recaps, and updates from UM-Dearborn Student Government.">
+  <PageHead eyebrow="News" title="Announcements &amp; recaps" lede="Posted by the executive board. For day-to-day updates, follow us on Instagram." />
+  <section class="section">
+    <div class="container">
+      {posts.length === 0 ? <div class="note note--muted">No posts yet.</div> : (
+        <div class="grid">{posts.map((p) => <PostCard slug={p.id} {...p.data} />)}</div>
+      )}
+    </div>
+  </section>
+</Base>

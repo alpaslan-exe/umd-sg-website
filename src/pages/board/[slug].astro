@@ -1,0 +1,28 @@
+---
+import Base from '../../layouts/Base.astro';
+import Avatar from '../../components/Avatar.astro';
+import { getCollection, render } from 'astro:content';
+import { url } from '../../lib/url';
+export async function getStaticPaths() {
+  const board = await getCollection('board', (m) => !m.data.vacant);
+  return board.map((m) => ({ params: { slug: m.id }, props: { m } }));
+}
+const { m } = Astro.props;
+const { Content } = await render(m);
+---
+<Base title={`${m.data.name}, ${m.data.position}`} description={m.data.summary}>
+  <section class="section">
+    <div class="container split">
+      <div class="prose">
+        <p><a href={url('/board')}>← Executive Board</a></p>
+        <span class="eyebrow">{m.data.position}</span>
+        <h1>{m.data.name} {m.data.pronouns && <small class="meta">({m.data.pronouns})</small>}</h1>
+        {(m.data.year || m.data.major) && <p class="meta">{[m.data.year, m.data.major].filter(Boolean).join(' · ')}</p>}
+        {m.data.summary && <p class="lede">{m.data.summary}</p>}
+        <Content />
+        {m.data.email && <p><a class="btn btn--navy" href={`mailto:${m.data.email}`}>Email {m.data.name.split(' ')[0]}</a></p>}
+      </div>
+      <div style="max-width:360px"><Avatar name={m.data.name} photo={m.data.photo} size={360} /></div>
+    </div>
+  </section>
+</Base>

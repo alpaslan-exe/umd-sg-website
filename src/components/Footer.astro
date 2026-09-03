@@ -1,0 +1,67 @@
+---
+import settings from '../data/settings.json';
+import { url } from '../lib/url';
+const year = new Date().getFullYear();
+const s = settings.socials;
+---
+<footer class="ftr">
+  <div class="container ftr__grid">
+    <div class="ftr__brand">
+      <img src={url('/img/roundel.png')} alt="" width="72" height="72" />
+      <p class="ftr__name">{settings.name}</p>
+      <p class="ftr__tag">{settings.tagline}. <span class="accent">{settings.motto}.</span></p>
+    </div>
+    <div>
+      <h3>Visit us</h3>
+      <address>
+        {settings.office.room}<br />
+        {settings.office.address}<br />
+        {settings.office.city}
+      </address>
+      <p><strong>Office hours:</strong> {settings.office.hours}</p>
+      <p><strong>General Meetings:</strong> {settings.meeting.schedule}</p>
+    </div>
+    <div>
+      <h3>Quick links</h3>
+      <ul>
+        <li><a href={settings.join_url} target="_blank" rel="noopener noreferrer">Join Student Government</a></li>
+        <li><a href={url('/initiatives/sg-hears-you')}>SG Hears You</a></li>
+        <li><a href={url('/events')}>Calendar</a></li>
+        <li><a href={url('/governance')}>Statutes &amp; Governing Documents</a></li>
+        <li><a href={url('/contact')}>Contact</a></li>
+        <li><a href={settings.linktree_url} target="_blank" rel="noopener noreferrer">Linktree</a></li>
+      </ul>
+    </div>
+    <div>
+      <h3>Follow</h3>
+      <ul>
+        <li><a href={s.instagram} target="_blank" rel="noopener noreferrer">Instagram {s.instagram_handle}</a></li>
+        <li><a href={s.instagram_events} target="_blank" rel="noopener noreferrer">Instagram @dearbornsg_events</a></li>
+        <li><a href={s.linkedin} target="_blank" rel="noopener noreferrer">LinkedIn</a></li>
+        <li><a href={s.x} target="_blank" rel="noopener noreferrer">X</a></li>
+        <li><a href={s.facebook} target="_blank" rel="noopener noreferrer">Facebook</a></li>
+        <li><a href={s.youtube} target="_blank" rel="noopener noreferrer">YouTube</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="container ftr__bottom">
+    <span>© {year} {settings.short_name}. Est. {settings.established}.</span>
+    <span>Email <a href={`mailto:${settings.contact_email}`}>{settings.contact_email}</a></span>
+    <a href={url('/admin/')} class="ftr__admin" rel="nofollow">Editor login</a>
+  </div>
+</footer>
+
+<style>
+  .ftr { background: var(--navy); color: rgba(255,255,255,.88); margin-top: 3rem; border-top: var(--frame) solid var(--maize); }
+  .ftr__grid { display: grid; gap: 2rem; padding-block: 3rem 2rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); }
+  .ftr h3 { color: var(--maize); font-size: 1.05rem; margin-bottom: .6rem; }
+  .ftr ul { list-style: none; margin: 0; padding: 0; }
+  .ftr li { margin-bottom: .4rem; }
+  .ftr a { color: rgba(255,255,255,.88); }
+  .ftr a:hover { color: var(--maize); }
+  .ftr address { font-style: normal; margin-bottom: .8rem; }
+  .ftr__name { font-family: var(--serif); font-weight: 700; color: var(--white); margin: .8rem 0 .2rem; }
+  .ftr__tag { font-family: var(--serif); font-style: italic; margin: 0; }
+  .ftr__bottom { display: flex; flex-wrap: wrap; gap: 1rem 2rem; padding-block: 1.2rem 1.6rem; border-top: 1px solid rgba(255,255,255,.15); font-size: .9rem; }
+  .ftr__admin { margin-left: auto; opacity: .7; }
+</style>

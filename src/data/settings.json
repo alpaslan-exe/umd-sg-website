@@ -1,0 +1,45 @@
+{
+  "name": "Student Government of the University of Michigan-Dearborn",
+  "short_name": "UM-Dearborn Student Government",
+  "tagline": "Your Voice, Our Mission",
+  "motto": "Go Blue, Go Dearborn",
+  "description": "The official voice of the UM-Dearborn student body. We advocate for students, fund initiatives, run campus events, and bridge students, faculty, and administration.",
+  "established": "1959",
+  "office": {
+    "room": "Renick University Center, UC 2122",
+    "address": "4901 Evergreen Road",
+    "city": "Dearborn, MI 48128",
+    "hours": "Monday to Friday, 9 AM to 5 PM"
+  },
+  "meeting": {
+    "schedule": "Weekly General Meetings (day and time announced each semester)",
+    "location": "Renick University Center",
+    "note": "All General Meetings are open to every student. Check the calendar for this week's time and room."
+  },
+  "contact_email": "rupinder@umich.edu",
+  "contact_name": "Rupinder Singh, Student Body President",
+  "join_url": "https://umdearborn.campuslabs.com/engage/organization/sg",
+  "linktree_url": "https://linktr.ee/umdstudentgov",
+  "hears_you_url": "https://chat.whatsapp.com/CVUZUzfPf4lBclzPiUnqQr",
+  "calendar_id": "c_9212f35ce708a00e8d2d0bca06d578927360f3f1a48ca7d93822991627815f40@group.calendar.google.com",
+  "calendar_timezone": "America/Detroit",
+  "socials": {
+    "instagram": "https://www.instagram.com/studentgov_umd/",
+    "instagram_handle": "@studentgov_umd",
+    "instagram_events": "https://www.instagram.com/dearbornsg_events/",
+    "linkedin": "https://www.linkedin.com/company/sgumd/",
+    "x": "https://x.com/umdearbornsg",
+    "facebook": "https://www.facebook.com/umdsg/",
+    "youtube": "https://www.youtube.com/channel/UCUkrFOMBKgKSZBGoepemtfg"
+  },
+  "forms": {
+    "meet_president": "https://forms.gle/3NUMEL42jk3Rvq5u8",
+    "notary": "https://forms.gle/2Dw7dhnGxhbXQiA89",
+    "roundtable": "https://docs.google.com/forms/d/1mRTuREfc6RTauO9fKnZKLgmiGlviRIEJsWVO4uHfTQY/viewform"
+  },
+  "announcement": {
+    "enabled": true,
+    "text": "SG Hears You is live. Share any concern or idea with Student Government, openly.",
+    "url": "/initiatives/sg-hears-you"
+  }
+}

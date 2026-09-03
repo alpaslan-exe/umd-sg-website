@@ -1,0 +1,26 @@
+---
+import Base from '../../layouts/Base.astro';
+import PageHead from '../../components/PageHead.astro';
+import SectionHead from '../../components/SectionHead.astro';
+import InitiativeCard from '../../components/InitiativeCard.astro';
+import { getCollection } from 'astro:content';
+const all = (await getCollection('initiatives')).sort((a, b) => a.data.order - b.data.order);
+const groups = [
+  { key: 'active', eyebrow: 'Now', title: 'Active initiatives' },
+  { key: 'upcoming', eyebrow: 'Next', title: 'Coming up' },
+  { key: 'past', eyebrow: 'Archive', title: 'Completed' },
+];
+---
+<Base title="Initiatives" description="Student Government initiatives at UM-Dearborn: SG Hears You, the Charity 5K, the President's Roundtable, the Fix-It Form, and more.">
+  <PageHead eyebrow="Initiatives" title="What we're building" lede="Projects driven by what students tell us. Each one has an owner on the executive board and a way for you to take part." />
+  {groups.map((g) => { const items = all.filter((i) => i.data.status === g.key); return items.length > 0 && (
+    <section class="section section--tight">
+      <div class="container">
+        <SectionHead eyebrow={g.eyebrow} title={g.title} />
+        <div class="grid">
+          {items.map((i) => <InitiativeCard slug={i.id} title={i.data.title} summary={i.data.summary} status={i.data.status} image={i.data.image} featured={i.data.featured} />)}
+        </div>
+      </div>
+    </section>
+  ); })}
+</Base>

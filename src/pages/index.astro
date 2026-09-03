@@ -1,0 +1,134 @@
+---
+import Base from '../layouts/Base.astro';
+import SectionHead from '../components/SectionHead.astro';
+import EventList from '../components/EventList.astro';
+import PostCard from '../components/PostCard.astro';
+import InitiativeCard from '../components/InitiativeCard.astro';
+import BoardCard from '../components/BoardCard.astro';
+import settings from '../data/settings.json';
+import { url } from '../lib/url';
+import { getCollection } from 'astro:content';
+import { fetchCalendarEvents, type CalEvent } from '../lib/calendar';
+
+const now = new Date();
+const [calEvents, manualEvents, posts, initiatives, board, services] = await Promise.all([
+  fetchCalendarEvents(settings.calendar_id, 4),
+  getCollection('events', (e) => !e.data.draft && e.data.start >= new Date(now.getTime() - 86400e3)),
+  getCollection('posts', (p) => !p.data.draft),
+  getCollection('initiatives'),
+  getCollection('board'),
+  getCollection('services'),
+]);
+const manual: CalEvent[] = manualEvents.map((e) => ({ id: e.id, title: e.data.title, start: e.data.start, end: e.data.end, allDay: e.data.all_day, location: e.data.location, url: e.data.url, description: e.data.summary, source: 'manual' }));
+const events = [...calEvents, ...manual].sort((a, b) => a.start.getTime() - b.start.getTime()).slice(0, 4);
+const latest = posts.sort((a, b) => b.data.date.getTime() - a.data.date.getTime()).slice(0, 3);
+const featured = initiatives.filter((i) => i.data.featured).sort((a, b) => a.data.order - b.data.order).slice(0, 3);
+const execs = board.filter((m) => m.data.group === 'executive').sort((a, b) => a.data.order - b.data.order);
+const topServices = services.sort((a, b) => a.data.order - b.data.order).slice(0, 4);
+---
+<Base>
+  <section class="hero">
+    <div class="hero__frame" aria-hidden="true"></div>
+    <div class="container hero__in">
+      <div class="hero__copy">
+        <span class="eyebrow">Student Government · UM-Dearborn · Est. {settings.established}</span>
+        <h1>Your voice.<br /><span class="accent">Our mission.</span></h1>
+        <p class="lede">{settings.description}</p>
+        <div class="cluster hero__cta">
+          <a class="btn btn--maize" href={url('/initiatives/sg-hears-you')}>SG Hears You <span class="arrow" aria-hidden="true">→</span></a>
+          <a class="btn btn--ghost" href={settings.join_url} target="_blank" rel="noopener noreferrer">Join Student Government</a>
+        </div>
+        <p class="hero__motto">{settings.motto}. Making a difference together.</p>
+      </div>
+      <div class="hero__side">
+        <div class="bubble bubble--navy">Tell us what's broken. Tell us what's missing.</div>
+        <div class="bubble hero__b2">Vote on what we build next. Together.</div>
+        <img class="hero__roundel" src={url('/img/roundel.png')} alt="" width="220" height="220" />
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--white">
+    <div class="container split">
+      <div>
+        <SectionHead eyebrow="What's coming up" title="Events &amp; General Meetings" lede="Every General Meeting is open to all students. Come see how your representatives work." />
+        <EventList events={events} compact />
+        <p style="margin-top:1.25rem"><a class="btn btn--navy" href={url('/events')}>Full calendar <span class="arrow" aria-hidden="true">→</span></a></p>
+      </div>
+      <div>
+        <SectionHead eyebrow="Latest" title="News" />
+        <div class="stack">
+          {latest.map((p) => <PostCard slug={p.id} {...p.data} />)}
+        </div>
+        <p style="margin-top:1.25rem"><a class="btn btn--outline" href={url('/news')}>All news</a></p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--navy">
+    <div class="container">
+      <SectionHead eyebrow="Initiatives" title="What we're working on" lede="Projects you asked for, run by your student representatives." />
+      <div class="grid">
+        {featured.map((i) => <InitiativeCard slug={i.id} title={i.data.title} summary={i.data.summary} status={i.data.status} image={i.data.image} featured />)}
+      </div>
+      <p style="margin-top:1.75rem"><a class="btn btn--maize" href={url('/initiatives')}>All initiatives <span class="arrow" aria-hidden="true">→</span></a></p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <SectionHead eyebrow="Free for every student" title="Services &amp; resources" />
+      <div class="grid grid--4">
+        {topServices.map((s) => (
+          <article class="card"><div class="card__body">
+            <h3>{s.data.url ? <a href={s.data.url} target="_blank" rel="noopener noreferrer">{s.data.title}</a> : s.data.title}</h3>
+            <p>{s.data.summary}</p>
+          </div></article>
+        ))}
+      </div>
+      <p style="margin-top:1.5rem"><a class="btn btn--outline" href={url('/about#services')}>See all services</a></p>
+    </div>
+  </section>
+
+  <section class="section section--white">
+    <div class="container">
+      <SectionHead eyebrow="2026–27" title="Meet your executive board" lede="Elected and appointed students who run Student Government day to day. Every officer has a public email." />
+      <div class="grid">
+        {execs.map((m) => <BoardCard slug={m.id} {...m.data} hasBio={!!m.body} />)}
+      </div>
+      <p style="margin-top:1.75rem"><a class="btn btn--navy" href={url('/board')}>Full executive board <span class="arrow" aria-hidden="true">→</span></a></p>
+    </div>
+  </section>
+
+  <section class="section section--tight">
+    <div class="container social">
+      <div class="social__copy">
+        <span class="eyebrow eyebrow--inline">Stay in the loop</span>
+        <h2>Follow <span class="accent-navy">{settings.socials.instagram_handle}</span></h2>
+        <p class="lede">Reels, recaps, and reminders. Our Instagram is the fastest way to hear about events.</p>
+      </div>
+      <div class="cluster">
+        <a class="btn btn--navy" href={settings.socials.instagram} target="_blank" rel="noopener noreferrer">Instagram</a>
+        <a class="btn btn--outline" href={settings.socials.linkedin} target="_blank" rel="noopener noreferrer">LinkedIn</a>
+        <a class="btn btn--outline" href={settings.linktree_url} target="_blank" rel="noopener noreferrer">Linktree</a>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .hero { position: relative; background: var(--navy); color: var(--white); overflow: hidden; }
+  .hero__frame { position: absolute; inset: 18px; border: var(--frame) solid var(--maize); border-radius: 8px; pointer-events: none; }
+  .hero__in { position: relative; display: grid; gap: 2.5rem; padding-block: clamp(3.5rem, 9vw, 7rem); padding-inline: clamp(.9rem, 3vw, 2.5rem); align-items: center; }
+  @media (min-width: 900px) { .hero__in { grid-template-columns: 1.25fr .85fr; } }
+  .hero h1 { color: var(--white); font-size: clamp(2.8rem, 7vw, 5.2rem); margin-bottom: 1rem; }
+  .hero .lede { color: rgba(255,255,255,.86); font-size: 1.2rem; }
+  .hero__cta { margin-top: 1.5rem; }
+  .hero__motto { margin-top: 1.5rem; font-family: var(--serif); font-style: italic; color: var(--maize); }
+  .hero__side { position: relative; display: grid; gap: 1.6rem; padding: 1rem 0 2rem; }
+  .hero__b2 { margin-left: 12%; }
+  .hero__roundel { position: absolute; right: -10px; bottom: -30px; width: 160px; opacity: .18; }
+  .social { display: flex; flex-wrap: wrap; gap: 1.5rem; align-items: center; justify-content: space-between; background: var(--white); border: 1px solid var(--line); border-radius: var(--radius); padding: 2rem; }
+  .social h2 { margin-bottom: .3rem; }
+  .accent-navy { color: var(--navy-3); }
+</style>

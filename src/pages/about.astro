@@ -1,0 +1,68 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHead from '../components/PageHead.astro';
+import SectionHead from '../components/SectionHead.astro';
+import settings from '../data/settings.json';
+import { url } from '../lib/url';
+import { getCollection } from 'astro:content';
+const services = (await getCollection('services')).sort((a, b) => a.data.order - b.data.order);
+---
+<Base title="About" description="Who Student Government is, how it is structured, and what it does for UM-Dearborn students.">
+  <PageHead eyebrow="About" title="Who we are &amp; what we do" lede="Student Government (SG) is the official representative body of students at the University of Michigan-Dearborn." />
+
+  <section class="section">
+    <div class="container split">
+      <div class="prose">
+        <h2>Our mission</h2>
+        <p>We are the official voice of the student body, committed to representing and advocating for the needs, concerns, and aspirations of all students. We advocate for student interests, create policy, fund initiatives, and serve as a bridge between students, faculty, and administration.</p>
+        <h2>Our values</h2>
+        <ul>
+          <li>Student advocacy and representation</li>
+          <li>Open communication and collaboration</li>
+          <li>Equity, inclusion, and respect</li>
+        </ul>
+        <h2>How SG is structured</h2>
+        <h3>The Senate</h3>
+        <p>The Senate represents the student body, debates and passes resolutions, and oversees committees and policy decisions. Senator seats are distributed across the four colleges (CASL, CECS, COB, CEHHS) and filled by election each March. Students who want to get involved between elections join as <strong>fellows</strong> and petition for a Senate seat after attending three General Meetings.</p>
+        <h3>The Executive Board</h3>
+        <p>Led by the President and Vice President, the executive board carries out policy and manages daily operations. Directors oversee inclusion, athletics, technology, and student life; secretaries keep the record, the budget, and the correspondence. <a href={url('/board')}>Meet the 2026–27 board.</a></p>
+        <h3>Committees</h3>
+        <p>Every senator serves on a standing committee: Rules, Appropriations, Student &amp; Academic Affairs, Outreach, Environmental Sustainability, Inclusion, Athletics &amp; Wellness, and International Student Affairs. <a href={url('/senate')}>See the committees.</a></p>
+        <h3>Advisors</h3>
+        <p>Staff from the Office of Student Life advise SG. SG also holds a delegate seat with <em>Students of Michigan</em>, the statewide coalition of student governments, and is a founding member of the United Michigan student government conference formed in 2026.</p>
+      </div>
+      <aside class="stack">
+        <div class="card card--navy"><div class="card__body">
+          <h3>Meetings &amp; office</h3>
+          <p><strong>General Meetings:</strong> {settings.meeting.schedule}</p>
+          <p><strong>Where:</strong> {settings.meeting.location}</p>
+          <p>{settings.meeting.note}</p>
+          <p><strong>Office:</strong> {settings.office.room}<br />{settings.office.address}, {settings.office.city}</p>
+          <p><strong>Office hours:</strong> {settings.office.hours}</p>
+          <p style="margin-top:.5rem"><a class="btn btn--maize btn--sm" href={url('/events')}>See the calendar</a></p>
+        </div></div>
+        <div class="card"><div class="card__body">
+          <h3>Join Student Government</h3>
+          <p>All students can join. Attend meetings, hold office hours, serve as a liaison to a student organization, and build real leadership experience.</p>
+          <p><a class="btn btn--navy btn--sm" href={settings.join_url} target="_blank" rel="noopener noreferrer">Join on VictorsLink</a></p>
+        </div></div>
+      </aside>
+    </div>
+  </section>
+
+  <section class="section section--white" id="services">
+    <div class="container">
+      <SectionHead eyebrow="Services" title="Free resources for every student" lede="Funded by Student Government and available to all UM-Dearborn students." />
+      <div class="grid">
+        {services.map((s) => (
+          <article class="card"><div class="card__body">
+            <h3>{s.data.title}</h3>
+            <p>{s.data.summary}</p>
+            {s.data.url && <p style="margin-top:.5rem"><a class="btn btn--outline btn--sm" href={s.data.url} target="_blank" rel="noopener noreferrer">{s.data.cta ?? 'Learn more'}</a></p>}
+            {!s.data.url && s.data.cta && <p class="meta">{s.data.cta}</p>}
+          </div></article>
+        ))}
+      </div>
+    </div>
+  </section>
+</Base>

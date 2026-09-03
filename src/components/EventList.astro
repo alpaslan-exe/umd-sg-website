@@ -1,0 +1,37 @@
+---
+import type { CalEvent } from '../lib/calendar';
+import { fmtDayParts, fmtTime } from '../lib/format';
+interface Props { events: CalEvent[]; empty?: string; compact?: boolean }
+const { events, empty = 'No upcoming events are posted yet. Check back soon, or follow us on Instagram for the latest.', compact = false } = Astro.props;
+---
+{events.length === 0 ? (
+  <div class="note note--muted">{empty}</div>
+) : (
+  <ol class:list={['evl', { 'evl--compact': compact }]}>
+    {events.map((e) => { const d = fmtDayParts(e.start); return (
+      <li class="ev">
+        <div class="ev__date" aria-hidden="true"><span class="ev__m">{d.month}</span><span class="ev__d">{d.day}</span><span class="ev__w">{d.weekday}</span></div>
+        <div class="ev__body">
+          <h3 class="ev__title">{e.url ? <a href={e.url} target="_blank" rel="noopener noreferrer">{e.title}</a> : e.title}</h3>
+          <p class="meta">
+            <time datetime={e.start.toISOString()}>{d.weekday}, {d.month} {d.day}{!e.allDay && ` · ${fmtTime(e.start)}`}{!e.allDay && e.end && ` – ${fmtTime(e.end)}`}</time>
+            {e.location && <> · {e.location}</>}
+          </p>
+          {!compact && e.description && <p class="ev__desc">{e.description.slice(0, 220)}{e.description.length > 220 ? '…' : ''}</p>}
+        </div>
+      </li>
+    ); })}
+  </ol>
+)}
+<style>
+  .evl { list-style: none; margin: 0; padding: 0; display: grid; gap: .9rem; }
+  .ev { display: grid; grid-template-columns: 74px 1fr; gap: 1rem; background: var(--white); border: 1px solid var(--line); border-radius: var(--radius); padding: 1rem; align-items: start; }
+  .ev__date { background: var(--navy); color: var(--white); border-radius: 12px; text-align: center; padding: .5rem .25rem; border-bottom: 4px solid var(--maize); font-family: var(--serif); line-height: 1.1; }
+  .ev__m { display: block; font-size: .75rem; text-transform: uppercase; letter-spacing: .08em; color: var(--maize); }
+  .ev__d { display: block; font-size: 1.6rem; font-weight: 700; }
+  .ev__w { display: block; font-size: .7rem; opacity: .8; }
+  .ev__title { font-size: 1.1rem; margin: 0 0 .2rem; }
+  .ev__title a { color: var(--navy); }
+  .ev__desc { margin: .3rem 0 0; color: var(--muted); font-size: .95rem; }
+  .evl--compact .ev { padding: .8rem; }
+</style>

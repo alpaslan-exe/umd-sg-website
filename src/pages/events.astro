@@ -1,0 +1,40 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHead from '../components/PageHead.astro';
+import SectionHead from '../components/SectionHead.astro';
+import EventList from '../components/EventList.astro';
+import settings from '../data/settings.json';
+import { getCollection } from 'astro:content';
+import { fetchCalendarEvents, embedUrl, icsUrl, type CalEvent } from '../lib/calendar';
+const now = new Date();
+const [cal, manualEntries] = await Promise.all([
+  fetchCalendarEvents(settings.calendar_id, 30),
+  getCollection('events', (e) => !e.data.draft && e.data.start >= new Date(now.getTime() - 86400e3)),
+]);
+const manual: CalEvent[] = manualEntries.map((e) => ({ id: e.id, title: e.data.title, start: e.data.start, end: e.data.end, allDay: e.data.all_day, location: e.data.location, url: e.data.url, description: e.data.summary, source: 'manual' }));
+const events = [...cal, ...manual].sort((a, b) => a.start.getTime() - b.start.getTime());
+const built = new Intl.DateTimeFormat('en-US', { timeZone: settings.calendar_timezone, dateStyle: 'medium', timeStyle: 'short' }).format(now);
+---
+<Base title="Events & Calendar" description="UM-Dearborn Student Government calendar: General Meetings, committee meetings, and campus events.">
+  <PageHead eyebrow="Calendar" title="Events &amp; meetings" lede={`${settings.meeting.schedule}. ${settings.meeting.note}`} />
+  <section class="section">
+    <div class="container split">
+      <div>
+        <SectionHead eyebrow="Upcoming" title="Next up" />
+        <EventList events={events} />
+        <p class="meta" style="margin-top:1rem">List refreshed {built}. Subscribe: <a href={icsUrl(settings.calendar_id)}>ICS feed</a> · <a href={`https://calendar.google.com/calendar/u/0/r?cid=${encodeURIComponent(settings.calendar_id)}`} target="_blank" rel="noopener noreferrer">Add to Google Calendar</a></p>
+      </div>
+      <div>
+        <SectionHead eyebrow="Full calendar" title="Student Government calendar" />
+        <div class="calwrap">
+          <iframe title="UM-Dearborn Student Government Google Calendar" src={embedUrl(settings.calendar_id, settings.calendar_timezone)} loading="lazy" referrerpolicy="no-referrer-when-downgrade" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+        </div>
+        <p class="meta">If the calendar does not load, it may be set to private. Follow <a href={settings.socials.instagram_events} target="_blank" rel="noopener noreferrer">@dearbornsg_events</a> for event announcements.</p>
+      </div>
+    </div>
+  </section>
+</Base>
+<style>
+  .calwrap { border: var(--frame) solid var(--maize); border-radius: var(--radius); overflow: hidden; background: var(--white); aspect-ratio: 4 / 5; max-height: 640px; margin-bottom: .75rem; }
+  .calwrap iframe { width: 100%; height: 100%; border: 0; }
+</style>

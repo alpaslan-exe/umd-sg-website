@@ -1,0 +1,39 @@
+---
+import Base from '../../layouts/Base.astro';
+import { getCollection, render } from 'astro:content';
+import { url, media } from '../../lib/url';
+export async function getStaticPaths() {
+  const items = await getCollection('initiatives');
+  return items.map((i) => ({ params: { slug: i.id }, props: { i } }));
+}
+const { i } = Astro.props;
+const { Content } = await render(i);
+const label = i.data.status === 'upcoming' ? 'Coming up' : i.data.status === 'past' ? 'Completed' : 'Active';
+const external = !!i.data.cta_url && /^https?:/.test(i.data.cta_url);
+---
+<Base title={i.data.title} description={i.data.summary} image={i.data.image ? url(i.data.image) : undefined}>
+  <section class="pagehead">
+    <div class="container">
+      <p><a href={url('/initiatives')} style="color:var(--maize)">← All initiatives</a></p>
+      <span class="pill">{label}</span>
+      <h1 style="margin-top:.6rem">{i.data.title}</h1>
+      {i.data.tagline && <p class="lede" style="font-family:var(--serif);font-style:italic;color:var(--maize)">{i.data.tagline}</p>}
+      <p class="lede">{i.data.summary}</p>
+      {i.data.cta_url && <p><a class="btn btn--maize" href={i.data.cta_url} target={external ? '_blank' : undefined} rel={external ? 'noopener noreferrer' : undefined}>{i.data.cta_label ?? 'Learn more'} <span class="arrow" aria-hidden="true">→</span></a></p>}
+    </div>
+  </section>
+  <section class="section">
+    <div class="container split">
+      <div class="prose"><Content /></div>
+      <aside class="stack">
+        {i.data.image && <img src={media(i.data.image)} alt="" style="border-radius:var(--radius);border:var(--frame) solid var(--maize)" />}
+        {i.data.links.length > 0 && (
+          <div class="card"><div class="card__body">
+            <h3>Related links</h3>
+            <ul style="margin:0;padding-left:1.1rem">{i.data.links.map((l) => <li><a href={l.url} target="_blank" rel="noopener noreferrer">{l.label}</a></li>)}</ul>
+          </div></div>
+        )}
+      </aside>
+    </div>
+  </section>
+</Base>

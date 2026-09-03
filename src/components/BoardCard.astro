@@ -1,0 +1,27 @@
+---
+import Avatar from './Avatar.astro';
+import { url } from '../lib/url';
+interface Props { slug: string; name: string; position: string; email?: string; photo?: string; summary?: string; pronouns?: string; vacant?: boolean; hasBio?: boolean }
+const { slug, name, position, email, photo, summary, pronouns, vacant = false, hasBio = false } = Astro.props;
+---
+<article class:list={['member card', { 'member--vacant': vacant }]}>
+  <Avatar name={name} photo={photo} vacant={vacant} />
+  <div class="card__body">
+    <span class="member__pos">{position}</span>
+    <h3>{vacant ? 'Vacant' : name} {pronouns && <span class="member__pn">({pronouns})</span>}</h3>
+    {summary && <p>{summary}</p>}
+    <div class="cluster member__actions">
+      {email && !vacant && <a class="btn btn--outline btn--sm" href={`mailto:${email}`}>Email</a>}
+      {hasBio && !vacant && <a class="btn btn--navy btn--sm" href={url(`/board/${slug}`)}>Bio</a>}
+      {vacant && <span class="pill pill--muted">Applications via Senate</span>}
+    </div>
+  </div>
+</article>
+<style>
+  .member { padding: 1rem 1rem 0; }
+  .member .card__body { padding-inline: .25rem; }
+  .member__pos { font-family: var(--serif); color: var(--maize-2); text-transform: uppercase; letter-spacing: .06em; font-size: .82rem; font-weight: 700; }
+  .member__pn { font-size: .85rem; color: var(--muted); font-weight: 400; font-family: var(--sans); }
+  .member__actions { margin-top: .4rem; }
+  .member--vacant { opacity: .85; }
+</style>

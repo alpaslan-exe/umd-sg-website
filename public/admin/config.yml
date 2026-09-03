@@ -1,0 +1,262 @@
+# Sveltia CMS configuration for the UM-Dearborn Student Government website.
+# Docs: https://sveltiacms.app/en/docs
+#
+# SIGN-IN: editors sign in with their GitHub account. Only people who have
+# write access to this repository can publish. Two ways to sign in:
+#   1. "Sign in with GitHub" — requires the Sveltia CMS Authenticator worker
+#      (see README, "CMS sign-in"). Set backend.base_url to the worker URL.
+#   2. "Sign in with Token" — a GitHub fine-grained personal access token with
+#      Contents: read/write on this repo only. Fallback for individual editors.
+
+backend:
+  name: github
+  repo: alpaslan-exe/umd-sg-website   # CHANGE after transferring to an org
+  branch: main
+  # base_url: https://sveltia-cms-auth.<your-subdomain>.workers.dev   # uncomment once the authenticator is deployed
+  commit_messages:
+    create: "content: add {{collection}} “{{slug}}”"
+    update: "content: update {{collection}} “{{slug}}”"
+    delete: "content: delete {{collection}} “{{slug}}”"
+    uploadMedia: "media: upload “{{path}}”"
+    deleteMedia: "media: delete “{{path}}”"
+
+site_url: https://alpaslan-exe.github.io/umd-sg-website
+display_url: https://alpaslan-exe.github.io/umd-sg-website
+logo_url: https://alpaslan-exe.github.io/umd-sg-website/img/roundel.png
+
+media_folder: public/media
+public_folder: /media
+media_libraries:
+  default:
+    config:
+      max_file_size: 4000000          # 4 MB per upload
+      transformations:
+        raster_image:
+          format: webp
+          quality: 82
+          width: 1600
+          height: 1600
+
+slug:
+  encoding: ascii
+  clean_accents: true
+
+singletons:
+  - name: settings
+    label: Site Settings
+    icon: settings
+    file: src/data/settings.json
+    fields:
+      - { label: Organization name, name: name, widget: string }
+      - { label: Short name, name: short_name, widget: string }
+      - { label: Tagline, name: tagline, widget: string }
+      - { label: Motto, name: motto, widget: string }
+      - { label: Description (SEO + hero), name: description, widget: text }
+      - { label: Established, name: established, widget: string }
+      - label: Office
+        name: office
+        widget: object
+        fields:
+          - { label: Room, name: room, widget: string }
+          - { label: Address, name: address, widget: string }
+          - { label: City / ZIP, name: city, widget: string }
+          - { label: Office hours, name: hours, widget: string }
+      - label: General Meetings
+        name: meeting
+        widget: object
+        fields:
+          - { label: Schedule (e.g. "Mondays at 4:30 PM"), name: schedule, widget: string }
+          - { label: Location, name: location, widget: string }
+          - { label: Note, name: note, widget: text }
+      - { label: General contact email, name: contact_email, widget: string, pattern: ['^[^@\s]+@[^@\s]+\.[^@\s]+$', 'Must be an email address'] }
+      - { label: General contact name, name: contact_name, widget: string }
+      - { label: Join URL (VictorsLink), name: join_url, widget: string }
+      - { label: Linktree URL, name: linktree_url, widget: string }
+      - { label: SG Hears You WhatsApp link, name: hears_you_url, widget: string }
+      - { label: Google Calendar ID, name: calendar_id, widget: string, hint: "Calendar Settings → Integrate calendar → Calendar ID. The calendar must be public." }
+      - { label: Calendar time zone, name: calendar_timezone, widget: string, default: America/Detroit }
+      - label: Social links
+        name: socials
+        widget: object
+        fields:
+          - { label: Instagram URL, name: instagram, widget: string }
+          - { label: Instagram handle, name: instagram_handle, widget: string }
+          - { label: Instagram (events) URL, name: instagram_events, widget: string }
+          - { label: LinkedIn URL, name: linkedin, widget: string }
+          - { label: X URL, name: x, widget: string, required: false }
+          - { label: Facebook URL, name: facebook, widget: string, required: false }
+          - { label: YouTube URL, name: youtube, widget: string, required: false }
+      - label: Forms
+        name: forms
+        widget: object
+        fields:
+          - { label: Meet with the President form, name: meet_president, widget: string }
+          - { label: Notary request form, name: notary, widget: string }
+          - { label: President's Roundtable form, name: roundtable, widget: string }
+      - label: Announcement bar
+        name: announcement
+        widget: object
+        fields:
+          - { label: Show announcement, name: enabled, widget: boolean, default: false }
+          - { label: Text, name: text, widget: string, required: false }
+          - { label: Link (site path like /events or full URL), name: url, widget: string, required: false }
+
+collections:
+  - name: posts
+    label: News
+    label_singular: Post
+    icon: newspaper
+    folder: src/content/posts
+    create: true
+    slug: "{{year}}-{{month}}-{{day}}-{{slug}}"
+    preview_path: news/{{slug}}
+    sortable_fields: [date, title]
+    summary: "{{title}} — {{date | date('MMM D, YYYY')}}"
+    fields:
+      - { label: Title, name: title, widget: string }
+      - { label: Date, name: date, widget: datetime, format: YYYY-MM-DD, time_format: false, picker_utc: true }
+      - { label: Summary (1–2 sentences), name: summary, widget: text }
+      - { label: Cover image, name: image, widget: image, required: false, media_folder: public/media/posts, public_folder: /media/posts }
+      - { label: Cover image description (alt text), name: image_alt, widget: string, required: false }
+      - { label: Tags, name: tags, widget: list, required: false, default: [] }
+      - { label: Author (e.g. "Director of Technology"), name: author, widget: string, required: false }
+      - { label: Draft (hide from site), name: draft, widget: boolean, default: false }
+      - { label: Body, name: body, widget: markdown }
+
+  - name: events
+    label: Events (manual)
+    label_singular: Event
+    icon: event
+    folder: src/content/events
+    create: true
+    slug: "{{start}}-{{slug}}"
+    sortable_fields: [start, title]
+    fields:
+      - { label: Title, name: title, widget: string }
+      - { label: Start, name: start, widget: datetime, format: "YYYY-MM-DDTHH:mm:ssZ" }
+      - { label: End, name: end, widget: datetime, required: false, format: "YYYY-MM-DDTHH:mm:ssZ" }
+      - { label: All day, name: all_day, widget: boolean, default: false }
+      - { label: Location, name: location, widget: string, required: false }
+      - { label: Link (registration, VictorsLink, etc.), name: url, widget: string, required: false }
+      - { label: Summary, name: summary, widget: text, required: false }
+      - { label: Draft, name: draft, widget: boolean, default: false }
+      - { label: Details, name: body, widget: markdown, required: false }
+
+  - name: board
+    label: Executive Board
+    label_singular: Board member
+    icon: groups
+    folder: src/content/board
+    create: true
+    slug: "{{slug}}"
+    sortable_fields: [order, name]
+    summary: "{{order}} · {{position}} — {{name}}"
+    fields:
+      - { label: Name, name: name, widget: string }
+      - { label: Position, name: position, widget: string }
+      - label: Group
+        name: group
+        widget: select
+        options:
+          - { label: "President / VP / Executive Secretary", value: executive }
+          - { label: "Directors", value: directors }
+          - { label: "Secretaries", value: secretaries }
+        default: directors
+      - { label: Display order, name: order, widget: number, value_type: int, default: 50 }
+      - { label: Email (umich.edu), name: email, widget: string, required: false, pattern: ['^$|^[^@\s]+@[^@\s]+\.[^@\s]+$', 'Must be an email address'] }
+      - { label: Photo (square, ≥ 800px), name: photo, widget: image, required: false, media_folder: public/media/board, public_folder: /media/board }
+      - { label: Pronouns, name: pronouns, widget: string, required: false }
+      - { label: Year (e.g. Junior), name: year, widget: string, required: false }
+      - { label: Major, name: major, widget: string, required: false }
+      - { label: One-line summary (shown on card), name: summary, widget: text, required: false }
+      - { label: Vacant seat, name: vacant, widget: boolean, default: false }
+      - { label: Bio, name: body, widget: markdown, required: false }
+
+  - name: committees
+    label: Senate Committees
+    label_singular: Committee
+    icon: gavel
+    folder: src/content/committees
+    create: true
+    slug: "{{slug}}"
+    sortable_fields: [order, name]
+    fields:
+      - { label: Committee name, name: name, widget: string }
+      - { label: Display order, name: order, widget: number, value_type: int, default: 50 }
+      - { label: Chair, name: chair, widget: string, required: false }
+      - { label: Chair email, name: chairEmail, widget: string, required: false }
+      - { label: Vice Chair, name: viceChair, widget: string, required: false }
+      - { label: Meets (e.g. "Wednesdays 6:30 PM, UC 1227"), name: meets, widget: string, required: false }
+      - { label: One-line summary, name: summary, widget: text, required: false }
+      - { label: Description, name: body, widget: markdown }
+
+  - name: initiatives
+    label: Initiatives
+    label_singular: Initiative
+    icon: campaign
+    folder: src/content/initiatives
+    create: true
+    slug: "{{slug}}"
+    preview_path: initiatives/{{slug}}
+    sortable_fields: [order, title, status]
+    fields:
+      - { label: Title, name: title, widget: string }
+      - { label: Summary (card + page intro), name: summary, widget: text }
+      - { label: Tagline (italic, optional), name: tagline, widget: string, required: false }
+      - label: Status
+        name: status
+        widget: select
+        options: [active, upcoming, past]
+        default: active
+      - { label: Feature on home page, name: featured, widget: boolean, default: false }
+      - { label: Display order, name: order, widget: number, value_type: int, default: 50 }
+      - { label: Image, name: image, widget: image, required: false, media_folder: public/media/initiatives, public_folder: /media/initiatives }
+      - { label: Button label, name: cta_label, widget: string, required: false }
+      - { label: Button link, name: cta_url, widget: string, required: false }
+      - label: Related links
+        name: links
+        widget: list
+        required: false
+        default: []
+        fields:
+          - { label: Label, name: label, widget: string }
+          - { label: URL, name: url, widget: string }
+      - { label: Body, name: body, widget: markdown }
+
+  - name: documents
+    label: Documents
+    label_singular: Document
+    icon: description
+    folder: src/content/documents
+    create: true
+    slug: "{{slug}}"
+    sortable_fields: [order, category, title]
+    fields:
+      - { label: Title, name: title, widget: string }
+      - label: Category
+        name: category
+        widget: select
+        options: [Governing, Meetings, Elections, Resources]
+      - { label: File or link, name: url, widget: file, media_folder: public/docs, public_folder: /docs, hint: "Upload a PDF here, or paste an external URL." }
+      - { label: Secondary / university copy URL, name: mirror_url, widget: string, required: false }
+      - { label: Date or version label (e.g. "As of 25 March 2026"), name: date, widget: string, required: false }
+      - { label: Summary, name: summary, widget: text, required: false }
+      - { label: Display order, name: order, widget: number, value_type: int, default: 50 }
+      - { label: Notes, name: body, widget: markdown, required: false }
+
+  - name: services
+    label: Services & Resources
+    label_singular: Service
+    icon: volunteer_activism
+    folder: src/content/services
+    create: true
+    slug: "{{slug}}"
+    sortable_fields: [order, title]
+    fields:
+      - { label: Title, name: title, widget: string }
+      - { label: Summary, name: summary, widget: text }
+      - { label: Link, name: url, widget: string, required: false }
+      - { label: Button label, name: cta, widget: string, required: false }
+      - { label: Display order, name: order, widget: number, value_type: int, default: 50 }
+      - { label: Icon (keyword), name: icon, widget: string, required: false, default: star }
+      - { label: Notes, name: body, widget: markdown, required: false }

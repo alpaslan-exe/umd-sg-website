@@ -1,0 +1,18 @@
+---
+import { initials } from '../lib/format';
+import { media } from '../lib/url';
+interface Props { name: string; photo?: string; size?: number; vacant?: boolean }
+const { name, photo, size = 220, vacant = false } = Astro.props;
+const src = media(photo);
+---
+{src ? (
+  <img class="avatar" src={src} alt={`Portrait of ${name}`} width={size} height={size} loading="lazy" />
+) : (
+  <div class="avatar avatar--ph" role="img" aria-label={vacant ? 'Position vacant' : `Placeholder portrait for ${name}`}>
+    <span>{vacant ? '—' : initials(name)}</span>
+  </div>
+)}
+<style>
+  .avatar { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 16px; border: var(--frame) solid var(--maize); background: var(--navy); }
+  .avatar--ph { display: grid; place-items: center; color: var(--maize); font-family: var(--serif); font-weight: 700; font-size: 3.2rem; letter-spacing: .04em; background: linear-gradient(160deg, var(--navy) 0%, var(--navy-2) 100%); }
+</style>

@@ -1,0 +1,69 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHead from '../components/PageHead.astro';
+import SectionHead from '../components/SectionHead.astro';
+import settings from '../data/settings.json';
+import { url } from '../lib/url';
+import { getCollection, render } from 'astro:content';
+const committees = (await getCollection('committees')).sort((a, b) => a.data.order - b.data.order);
+const rendered = await Promise.all(committees.map(async (c) => ({ c, Content: (await render(c)).Content })));
+---
+<Base title="Senate & Committees" description="How the UM-Dearborn Student Government Senate works, its eight standing committees, and how to join as a fellow or senator.">
+  <PageHead eyebrow="Legislative branch" title="The Senate" lede="Senators represent the four colleges, pass resolutions, and do their work through eight standing committees." />
+
+  <section class="section">
+    <div class="container split">
+      <div class="prose">
+        <h2>How to join</h2>
+        <ol>
+          <li><strong>Sign up on VictorsLink</strong> and come to a General Meeting. Everyone is welcome.</li>
+          <li><strong>Become a fellow.</strong> Fellows attend meetings, join a committee, and are paired with a senator mentor.</li>
+          <li><strong>Petition for a Senate seat.</strong> After three General Meetings a fellow may petition; the Senate votes on the petition.</li>
+          <li><strong>Or run in March.</strong> Senator seats for the next year are filled by campus-wide election each spring.</li>
+        </ol>
+        <h2>What senators do</h2>
+        <ul>
+          <li>Attend weekly General Meetings and their committee's meetings. Three unexcused absences result in removal.</li>
+          <li>Hold office hours in the SG office or serve as a liaison to a student organization.</li>
+          <li>Author and sponsor Legislative Resolutions.</li>
+          <li>Vote on resolutions, appointments, amendments, and the budget.</li>
+        </ul>
+        <p>Read the full rules in the <a href={url('/governance')}>Statutes</a>.</p>
+      </div>
+      <aside class="stack">
+        <div class="card card--navy"><div class="card__body">
+          <h3>Ready to get involved?</h3>
+          <p>Join on VictorsLink, then show up to the next General Meeting.</p>
+          <p><a class="btn btn--maize btn--sm" href={settings.join_url} target="_blank" rel="noopener noreferrer">Join on VictorsLink</a> <a class="btn btn--ghost btn--sm" href={url('/events')}>Next meeting</a></p>
+        </div></div>
+        <div class="card"><div class="card__body">
+          <h3>Students of Michigan</h3>
+          <p>SG holds a delegate seat with Students of Michigan, the coalition of student governments across the state, and helped found the United Michigan student government conference in 2026.</p>
+        </div></div>
+      </aside>
+    </div>
+  </section>
+
+  <section class="section section--white" id="committees">
+    <div class="container">
+      <SectionHead eyebrow="Standing committees" title="Eight committees, one Senate" lede="Every senator serves on at least one. Chairs are selected each term by the Executive Secretary through an interview process." />
+      <div class="grid grid--2">
+        {rendered.map(({ c, Content }) => (
+          <article class="card" id={c.id}><div class="card__body">
+            <h3>{c.data.name}</h3>
+            <div class="prose committee__body"><Content /></div>
+            <dl class="dl committee__dl">
+              <dt>Chair</dt><dd>{c.data.chair ? (c.data.chairEmail ? <a href={`mailto:${c.data.chairEmail}`}>{c.data.chair}</a> : c.data.chair) : <span class="meta">To be announced this term</span>}</dd>
+              {c.data.viceChair && <><dt>Vice Chair</dt><dd>{c.data.viceChair}</dd></>}
+              {c.data.meets && <><dt>Meets</dt><dd>{c.data.meets}</dd></>}
+            </dl>
+          </div></article>
+        ))}
+      </div>
+    </div>
+  </section>
+</Base>
+<style>
+  .committee__body :global(p) { color: var(--ink); }
+  .committee__dl { margin-top: .5rem; font-size: .95rem; }
+</style>

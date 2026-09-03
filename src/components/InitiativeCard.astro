@@ -1,0 +1,22 @@
+---
+import { url, media } from '../lib/url';
+interface Props { slug: string; title: string; summary: string; status: string; image?: string; featured?: boolean }
+const { slug, title, summary, status, image, featured = false } = Astro.props;
+const label = status === 'upcoming' ? 'Coming up' : status === 'past' ? 'Completed' : 'Active';
+---
+<article class:list={['card', { 'card--frame': featured }]}>
+  {image ? (
+    <a class="card__media" href={url(`/initiatives/${slug}`)} tabindex="-1" aria-hidden="true"><img src={media(image)} alt="" loading="lazy" /></a>
+  ) : (
+    <a class="card__media card__media--text" href={url(`/initiatives/${slug}`)} tabindex="-1" aria-hidden="true"><span>{title}</span></a>
+  )}
+  <div class="card__body">
+    <span class:list={['pill', { 'pill--muted': status === 'past' }]}>{label}</span>
+    <h3><a href={url(`/initiatives/${slug}`)}>{title}</a></h3>
+    <p>{summary}</p>
+  </div>
+</article>
+<style>
+  .card__media--text { display: grid; place-items: center; padding: 1.5rem; text-decoration: none; }
+  .card__media--text span { font-family: var(--serif); font-weight: 700; font-size: 1.9rem; color: var(--maize); text-align: center; line-height: 1.1; }
+</style>
