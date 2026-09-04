@@ -32,20 +32,14 @@ The site is live about two minutes later.
 
 1. **Enable GitHub Pages** for this repo: Settings → Pages → Source: *GitHub Actions*. The
    workflow in `.github/workflows/deploy.yml` does the rest.
-2. **CMS sign-in** (one-time, ~15 minutes). Editors sign in with GitHub, so only people with
-   *write* access to this repo can publish. Two options:
-   - **Recommended: Sveltia CMS Authenticator on Cloudflare Workers (free).**
-     1. Deploy https://github.com/sveltia/sveltia-cms-auth (Deploy-to-Cloudflare button or `wrangler deploy`).
-     2. Create a GitHub OAuth App at https://github.com/settings/applications/new with
-        *Authorization callback URL* = `https://<your-worker>.workers.dev/callback`.
-     3. In the Worker settings add variables `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET`
-        (encrypted), and `ALLOWED_DOMAINS` = the site hostname (e.g. `alpaslan-exe.github.io`).
-     4. Uncomment and set `backend.base_url` in `public/admin/config.yml` to the Worker URL.
-   - **Fallback: personal access token.** On the sign-in screen choose *Sign in with Token*
-     and paste a GitHub fine-grained token scoped to this repository with *Contents: read and
-     write*. Fine for one or two editors; not for a large team.
-3. **Add editors** as repository collaborators with *Write* access, and require 2FA
-   (Settings → Moderation / or org-level setting). Remove people when they leave the board.
+2. **CMS sign-in** (one-time, ~15 minutes, all free tiers). Board members sign in with a
+   one-time code emailed to the board list `Dearbornsg.board@umich.edu`; no GitHub accounts or
+   passwords. The authenticator lives in [`cms-auth/`](cms-auth/README.md) and runs on Cloudflare
+   Workers. Follow that README: Cloudflare login, Brevo sender + API key, a bot GitHub token,
+   `npm run deploy`, then set `backend.base_url` in `public/admin/config.yml`.
+   Fallback until then: *Sign In Using Access Token* with a fine-grained PAT.
+3. **Access control** = membership of the `Dearbornsg.board` MCommunity group. Anyone who can read
+   that list can sign in, so keep it current at every turnover and rotate the bot token.
 4. **Make the Google Calendar public.** In Google Calendar → the "UM-Dearborn Student Government"
    calendar → *Settings and sharing* → *Access permissions* → *Make available to public* (see
    all event details). Until then the embed shows a sign-in prompt and the "Next up" list is
@@ -71,10 +65,12 @@ changes. When you transfer the repo to an organization (GitHub → Settings → 
 
 ## Security notes
 
-- No secrets in this repository. The GitHub OAuth client secret lives only in the Cloudflare
+- No secrets in this repository. The Brevo key and GitHub bot token live only in the Cloudflare
   Worker. Tokens never touch the site; the CMS talks to the GitHub API directly from the browser.
-- Publishing requires GitHub write access to this repo. Keep the collaborator list current
-  and require two-factor authentication.
+- Publishing goes through a single bot token held only by the Cloudflare Worker; editors receive
+  it after a one-time code. Codes expire in 10 minutes, are single use, and sending is rate limited.
+  Trade-off accepted by SG: identity is "someone on the board list", so commits are not attributed to
+  individuals. Rotate the token at turnover (`npm run secret:github` in `cms-auth/`).
 - Sveltia CMS is pinned to an exact version with Subresource Integrity in
   `public/admin/index.html`. To upgrade, change the version and regenerate the hash:
   `curl -sL https://cdn.jsdelivr.net/npm/@sveltia/cms@<ver>/dist/sveltia-cms.js | openssl dgst -sha384 -binary | openssl base64 -A`

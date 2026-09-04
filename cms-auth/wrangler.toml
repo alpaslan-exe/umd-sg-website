@@ -1,0 +1,22 @@
+name = "umdsg-cms-auth"
+main = "src/index.js"
+compatibility_date = "2026-08-01"
+workers_dev = true
+
+# Created by `npm run setup` (wrangler kv namespace create OTP_KV); paste the id here.
+[[kv_namespaces]]
+binding = "OTP_KV"
+id = "REPLACE_WITH_KV_NAMESPACE_ID"
+
+[vars]
+# Hostnames allowed to use this authenticator (comma-separated, * wildcard ok).
+ALLOWED_DOMAINS = "alpaslan-exe.github.io"
+# Where one-time codes are delivered. This is a shared board mailing list by design.
+MAIL_TO = "Dearbornsg.board@umich.edu"
+# Verified sender in Brevo.
+MAIL_FROM = "Dearbornsg.board@umich.edu"
+MAIL_FROM_NAME = "UM-Dearborn Student Government website"
+SITE_NAME = "UM-Dearborn Student Government"
+# Secrets (set with `wrangler secret put <NAME>`, never in this file):
+#   BREVO_API_KEY   Brevo (free tier) transactional email API key
+#   GITHUB_TOKEN    fine-grained PAT of the bot account, scoped to the site repo, Contents: read/write

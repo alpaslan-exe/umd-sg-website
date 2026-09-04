@@ -1,18 +1,17 @@
 # Sveltia CMS configuration for the UM-Dearborn Student Government website.
 # Docs: https://sveltiacms.app/en/docs
 #
-# SIGN-IN: editors sign in with their GitHub account. Only people who have
-# write access to this repository can publish. Two ways to sign in:
-#   1. "Sign in with GitHub" — requires the Sveltia CMS Authenticator worker
-#      (see README, "CMS sign-in"). Set backend.base_url to the worker URL.
-#   2. "Sign in with Token" — a GitHub fine-grained personal access token with
-#      Contents: read/write on this repo only. Fallback for individual editors.
+# SIGN-IN: board members click "Sign in with GitHub", which opens the SG
+# authenticator (cms-auth/ in this repo, deployed on Cloudflare Workers). It
+# emails a one-time code to the board mailing list and hands the CMS a
+# repo-scoped bot token. Set backend.base_url to the deployed worker URL.
+# Fallback: "Sign in Using Access Token" with a fine-grained PAT.
 
 backend:
   name: github
   repo: alpaslan-exe/umd-sg-website   # CHANGE after transferring to an org
   branch: main
-  # base_url: https://sveltia-cms-auth.<your-subdomain>.workers.dev   # uncomment once the authenticator is deployed
+  # base_url: https://umdsg-cms-auth.<account>.workers.dev   # uncomment once cms-auth is deployed (see cms-auth/README.md)
   commit_messages:
     create: "content: add {{collection}} “{{slug}}”"
     update: "content: update {{collection}} “{{slug}}”"
@@ -168,6 +167,7 @@ collections:
       - { label: Year (e.g. Junior), name: year, widget: string, required: false }
       - { label: Major, name: major, widget: string, required: false }
       - { label: One-line summary (shown on card), name: summary, widget: text, required: false }
+      - { label: Fun fact, name: fun_fact, widget: string, required: false }
       - { label: Vacant seat, name: vacant, widget: boolean, default: false }
       - { label: Bio, name: body, widget: markdown, required: false }
 

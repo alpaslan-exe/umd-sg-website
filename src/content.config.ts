@@ -21,6 +21,7 @@ const board = defineCollection({
     year: z.string().optional(),
     major: z.string().optional(),
     summary: z.string().optional(),
+    fun_fact: z.string().optional(),
     vacant: z.boolean().default(false),
     group: z.enum(['executive', 'directors', 'secretaries']).default('directors'),
   }),

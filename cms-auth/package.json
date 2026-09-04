@@ -1,0 +1,16 @@
+{
+  "name": "umdsg-cms-auth",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "setup": "wrangler kv namespace create OTP_KV",
+    "secret:brevo": "wrangler secret put BREVO_API_KEY",
+    "secret:github": "wrangler secret put GITHUB_TOKEN",
+    "tail": "wrangler tail"
+  },
+  "devDependencies": {
+    "wrangler": "^4.129.0"
+  }
+}

@@ -20,6 +20,7 @@ const { Content } = await render(m);
         {(m.data.year || m.data.major) && <p class="meta">{[m.data.year, m.data.major].filter(Boolean).join(' · ')}</p>}
         {m.data.summary && <p class="lede">{m.data.summary}</p>}
         <Content />
+        {m.data.fun_fact && <p class="bubble" style="display:inline-block;margin-top:.5rem">Fun fact: {m.data.fun_fact}</p>}
         {m.data.email && <p><a class="btn btn--navy" href={`mailto:${m.data.email}`}>Email {m.data.name.split(' ')[0]}</a></p>}
       </div>
       <div style="max-width:360px"><Avatar name={m.data.name} photo={m.data.photo} size={360} /></div>

@@ -1,9 +1,10 @@
----
-name: Da'ud Ismail
+---name: Da'ud Ismail
 position: Student Body Vice President
 group: executive
 order: 2
-email: ""
+email: "daudi@umich.edu"
 summary: Coordinates the executive board, oversees Senate operations day to day, and represents SG at a new statewide coalition of Michigan student governments.
+photo: "/media/board/daud-ismail.jpg"
+fun_fact: "I've broken 8 bones."
 ---
 The Vice President works alongside every executive board member to keep Student Government running smoothly, presides when the President is absent, and is the point of contact for senators and fellows on attendance, office hours, and committee placement.
