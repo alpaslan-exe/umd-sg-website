@@ -11,7 +11,7 @@ backend:
   name: github
   repo: alpaslan-exe/umd-sg-website   # CHANGE after transferring to an org
   branch: main
-  # base_url: https://umdsg-cms-auth.<account>.workers.dev   # uncomment once cms-auth is deployed (see cms-auth/README.md)
+  base_url: https://umdsg-cms-auth.umdsg-cms-auth.workers.dev
   commit_messages:
     create: "content: add {{collection}} “{{slug}}”"
     update: "content: update {{collection}} “{{slug}}”"

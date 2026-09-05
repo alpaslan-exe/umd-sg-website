@@ -6,7 +6,7 @@ workers_dev = true
 # Created by `npm run setup` (wrangler kv namespace create OTP_KV); paste the id here.
 [[kv_namespaces]]
 binding = "OTP_KV"
-id = "REPLACE_WITH_KV_NAMESPACE_ID"
+id = "3a0357e2568247f8a212f495760a87a6"
 
 [vars]
 # Hostnames allowed to use this authenticator (comma-separated, * wildcard ok).
