@@ -11,9 +11,9 @@ id = "3a0357e2568247f8a212f495760a87a6"
 [vars]
 # --- Cloudflare Access mode (preferred). Leave both empty to fall back to emailed codes via Brevo.
 # Team domain from Zero Trust → Settings → Custom Pages (e.g. umdsg.cloudflareaccess.com)
-ACCESS_TEAM_DOMAIN = ""
+ACCESS_TEAM_DOMAIN = "steep-mountain-0d4e.cloudflareaccess.com"
 # Application Audience (AUD) tag: Zero Trust → Access → Applications → this app → Configure → Additional settings
-ACCESS_AUD = ""
+ACCESS_AUD = "86cbca43ffac6e96336cc7105dd46e9528d34721d58db90384c063e8721406f7"
 # Extra guard: only these emails (comma-separated) may sign in, even if the Access policy is wider.
 ALLOWED_EMAILS = "dearbornsg.board@umich.edu"
 # Hostnames allowed to use this authenticator (comma-separated, * wildcard ok).
