@@ -3,7 +3,33 @@
 Cloudflare Worker that signs board members into the website editor (Sveltia CMS) with a
 one-time code emailed to the board mailing list. No GitHub accounts or passwords for editors.
 
-## One-time setup (~15 min, free tier everywhere)
+## Sign-in mode A: Cloudflare Access one-time PIN (preferred)
+
+Cloudflare emails the PIN itself from `noreply@notify.cloudflare.com`, so nothing needs a sender
+address and umich mail does not greylist it. Setup (dashboard, free):
+
+1. Cloudflare dashboard → **Zero Trust** → enable it if prompted (Free plan, pick a team name; the
+   team domain becomes `<team>.cloudflareaccess.com`).
+2. Zero Trust → **Integrations → Identity providers → Add** → **One-time PIN**.
+3. **Workers & Pages → umdsg-cms-auth → Access tab → Protect this Worker behind Access → All traffic**,
+   pick any policy to start, **Apply Access**.
+4. Zero Trust → **Access → Applications → umdsg-cms-auth → Configure**: in the policy, set the include
+   rule to **Emails** = `dearbornsg.board@umich.edu` (remove any email-domain rule), identity
+   provider = One-time PIN only, session duration 24h. Copy the **Application Audience (AUD) Tag**
+   from *Additional settings*.
+5. Put the team domain and AUD into `wrangler.toml` (`ACCESS_TEAM_DOMAIN`, `ACCESS_AUD`) and
+   `npm run deploy`. The Worker then verifies Cloudflare's signed login token (signature, issuer,
+   audience, expiry, email) before releasing the GitHub token. `ALLOWED_EMAILS` is a second guard.
+
+Editors: click "Sign in with GitHub" on `/admin/`, enter `dearbornsg.board@umich.edu`, paste the PIN
+from the board inbox, done.
+
+## Sign-in mode B: emailed code via Brevo (fallback)
+
+Used automatically when `ACCESS_TEAM_DOMAIN`/`ACCESS_AUD` are empty. Note: umich greylists outside
+servers presenting a umich.edu sender, so codes arrive 8–9 minutes late; codes last 15 minutes.
+
+### One-time setup (~15 min, free tier everywhere)
 
 1. **Cloudflare account** (free): https://dash.cloudflare.com/sign-up
 2. **Brevo account** (free, 300 emails/day): https://www.brevo.com. Under *Senders*, add and

@@ -9,6 +9,13 @@ binding = "OTP_KV"
 id = "3a0357e2568247f8a212f495760a87a6"
 
 [vars]
+# --- Cloudflare Access mode (preferred). Leave both empty to fall back to emailed codes via Brevo.
+# Team domain from Zero Trust → Settings → Custom Pages (e.g. umdsg.cloudflareaccess.com)
+ACCESS_TEAM_DOMAIN = ""
+# Application Audience (AUD) tag: Zero Trust → Access → Applications → this app → Configure → Additional settings
+ACCESS_AUD = ""
+# Extra guard: only these emails (comma-separated) may sign in, even if the Access policy is wider.
+ALLOWED_EMAILS = "dearbornsg.board@umich.edu"
 # Hostnames allowed to use this authenticator (comma-separated, * wildcard ok).
 ALLOWED_DOMAINS = "alpaslan-exe.github.io"
 # Where one-time codes are delivered. This is a shared board mailing list by design.

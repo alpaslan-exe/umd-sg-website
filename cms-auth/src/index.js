@@ -1,5 +1,13 @@
 /**
- * umdsg-cms-auth: one-time-code sign-in for Sveltia CMS.
+ * umdsg-cms-auth: sign-in for Sveltia CMS without GitHub accounts.
+ *
+ * MODE A (preferred): Cloudflare Access. The Worker is protected by Access with a One-time PIN
+ * policy that allows only the board mailing list. Cloudflare emails the PIN from its own domain
+ * (no greylisting), and the request reaches this Worker carrying a signed JWT. We verify the JWT
+ * (signature, issuer, audience, expiry, email) and hand the CMS its GitHub token. Enabled when
+ * ACCESS_TEAM_DOMAIN and ACCESS_AUD are set.
+ *
+ * MODE B (fallback): our own emailed one-time code via Brevo, described below.
  *
  * Flow: the CMS opens `/auth?provider=github&site_id=<host>` in a popup. The page asks the worker
  * to email a 6-digit code to the board mailing list (MAIL_TO). When the code is verified the worker
@@ -146,6 +154,100 @@ function page(env, { provider, site, error }) {
   );
 }
 
+/* ---------------- Cloudflare Access mode ---------------- */
+
+const b64urlToBytes = (str) => {
+  const pad = '='.repeat((4 - (str.length % 4)) % 4);
+  const bin = atob(str.replace(/-/g, '+').replace(/_/g, '/') + pad);
+  return Uint8Array.from(bin, (c) => c.charCodeAt(0));
+};
+const decodeSegment = (seg) => JSON.parse(new TextDecoder().decode(b64urlToBytes(seg)));
+
+let certsCache = { at: 0, keys: [] };
+async function getAccessKeys(teamDomain) {
+  if (Date.now() - certsCache.at < 5 * 60e3 && certsCache.keys.length) return certsCache.keys;
+  const res = await fetch(`https://${teamDomain}/cdn-cgi/access/certs`, { cf: { cacheTtl: 300 } });
+  if (!res.ok) throw new Error(`certs ${res.status}`);
+  const { keys = [] } = await res.json();
+  certsCache = { at: Date.now(), keys };
+  return keys;
+}
+
+/** Verify a Cloudflare Access JWT. Returns the payload or throws. */
+async function verifyAccessJwt(token, env) {
+  const parts = token.split('.');
+  if (parts.length !== 3) throw new Error('malformed token');
+  const header = decodeSegment(parts[0]);
+  const payload = decodeSegment(parts[1]);
+  if (header.alg !== 'RS256') throw new Error('unexpected alg');
+  const keys = await getAccessKeys(env.ACCESS_TEAM_DOMAIN);
+  const jwk = keys.find((k) => k.kid === header.kid);
+  if (!jwk) throw new Error('unknown signing key');
+  const key = await crypto.subtle.importKey('jwk', jwk, { name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-256' }, false, ['verify']);
+  const ok = await crypto.subtle.verify('RSASSA-PKCS1-v1_5', key, b64urlToBytes(parts[2]), new TextEncoder().encode(`${parts[0]}.${parts[1]}`));
+  if (!ok) throw new Error('bad signature');
+  const now = Math.floor(Date.now() / 1000);
+  if (typeof payload.exp !== 'number' || payload.exp < now) throw new Error('token expired');
+  if (typeof payload.nbf === 'number' && payload.nbf > now + 60) throw new Error('token not yet valid');
+  if (payload.iss !== `https://${env.ACCESS_TEAM_DOMAIN}`) throw new Error('wrong issuer');
+  const aud = Array.isArray(payload.aud) ? payload.aud : [payload.aud];
+  if (!aud.includes(env.ACCESS_AUD)) throw new Error('wrong audience');
+  const email = String(payload.email ?? '').toLowerCase();
+  if (!email) throw new Error('no email in token');
+  const allowed = (env.ALLOWED_EMAILS ?? '').split(',').map((e) => e.trim().toLowerCase()).filter(Boolean);
+  if (allowed.length && !allowed.includes(email)) throw new Error(`email ${email} not allowed`);
+  return payload;
+}
+
+function accessPage(env, { provider, site, token, error }) {
+  const trusted = serialize(domainPatterns(env.ALLOWED_DOMAINS));
+  const body = error
+    ? `<h1>Sign-in unavailable</h1><p class="err">${error}</p>`
+    : `<h1>Signed in</h1><p id="msg" class="msg" role="status">Handing off to the editor… you can close this window once it loads.</p>`;
+  return new Response(
+    `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>${env.SITE_NAME} editor sign-in</title>
+<style>body{margin:0;min-height:100vh;display:grid;place-items:center;background:#00274c;color:#fff;font:16px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}main{width:min(92vw,440px);background:#fff;color:#14202e;border:6px solid #ffcb05;border-radius:16px;padding:1.6rem 1.8rem}h1{font-family:Georgia,serif;color:#00274c;margin:0 0 .6rem;font-size:1.6rem}.msg{color:#5b6573}.err{color:#b00020}</style>
+</head><body><main>${body}</main>
+<script>
+(() => {
+  const provider = ${serialize(provider)}; const token = ${serialize(token ?? null)};
+  const trustedPatterns = ${trusted};
+  const isTrusted = (origin) => { try { const { hostname } = new URL(origin); return trustedPatterns.length === 0 || trustedPatterns.some((p) => new RegExp(p).test(hostname)); } catch { return false; } };
+  if (!token) return;
+  window.addEventListener('message', ({ data, origin }) => {
+    if (data !== 'authorizing:' + provider || !isTrusted(origin)) return;
+    window.opener?.postMessage('authorization:' + provider + ':success:' + JSON.stringify({ provider, token }), origin);
+    const m = document.getElementById('msg'); if (m) m.textContent = 'Signed in. You can close this window.';
+  });
+  window.opener?.postMessage('authorizing:' + provider, '*');
+})();
+</script></body></html>`,
+    { headers: { 'Content-Type': 'text/html;charset=UTF-8', 'Cache-Control': 'no-store', 'Referrer-Policy': 'no-referrer', 'X-Frame-Options': 'DENY',
+      'Content-Security-Policy': "default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; base-uri 'none'" } },
+  );
+}
+
+async function handleAccessAuth(request, env) {
+  const { searchParams } = new URL(request.url);
+  const provider = searchParams.get('provider') ?? 'github';
+  const site = searchParams.get('site_id') ?? '';
+  if (provider !== 'github') return accessPage(env, { provider, site, error: 'Only the GitHub backend is supported.' });
+  if (!domainAllowed(env, site)) return accessPage(env, { provider, site, error: 'This site is not allowed to use the authenticator.' });
+  if (!env.GITHUB_TOKEN) return accessPage(env, { provider, site, error: 'The authenticator is not fully configured yet. Ask the Director of Technology.' });
+  const jwt = request.headers.get('Cf-Access-Jwt-Assertion') ?? getCookie(request, 'CF_Authorization');
+  if (!jwt) return accessPage(env, { provider, site, error: 'No Cloudflare Access session found. Make sure the Worker is protected by Access, then try again.' });
+  try {
+    const payload = await verifyAccessJwt(jwt, env);
+    console.log(JSON.stringify({ event: 'access_signin', email: payload.email, site, ip: clientIp(request) }));
+    return accessPage(env, { provider, site, token: env.GITHUB_TOKEN });
+  } catch (err) {
+    console.warn('access verify failed', err.message);
+    return accessPage(env, { provider, site, error: 'Your sign-in could not be verified. Close this window and try again.' });
+  }
+}
+
+/* ---------------- Emailed-code mode (fallback) ---------------- */
+
 async function handleAuth(request, env) {
   const { searchParams } = new URL(request.url);
   const provider = searchParams.get('provider') ?? 'github';
@@ -203,7 +305,9 @@ async function handleVerify(request, env) {
 export default {
   async fetch(request, env) {
     const { pathname } = new URL(request.url);
-    if (request.method === 'GET' && (pathname === '/auth' || pathname === '/')) return handleAuth(request, env);
+    const accessMode = !!(env.ACCESS_TEAM_DOMAIN && env.ACCESS_AUD);
+    if (request.method === 'GET' && (pathname === '/auth' || pathname === '/')) return accessMode ? handleAccessAuth(request, env) : handleAuth(request, env);
+    if (accessMode) return new Response('Not found', { status: 404 });
     if (request.method === 'POST' && pathname === '/otp/send') return handleSend(request, env);
     if (request.method === 'POST' && pathname === '/otp/verify') return handleVerify(request, env);
     return new Response('Not found', { status: 404 });
