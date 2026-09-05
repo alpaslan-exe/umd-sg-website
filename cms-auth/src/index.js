@@ -14,7 +14,7 @@
  *  - The trade-off chosen by SG: anyone who can read the board list can sign in. Keep the list current.
  */
 
-const CODE_TTL = 600; // seconds
+const CODE_TTL = 900; // seconds (15 min: umich greylisting can delay delivery a few minutes)
 const MAX_ATTEMPTS = 5;
 const SEND_LIMIT_PER_IP = 5; // per 10 minutes
 const SEND_LIMIT_GLOBAL = 40; // per hour
@@ -128,7 +128,7 @@ function page(env, { provider, site, error }) {
   };
   const send = async (btn) => {
     btn && (btn.disabled = true); msg('Sending code…');
-    try { await post('/otp/send', { site: location.search }); $('#send').hidden = true; $('#verify').hidden = false; $('#code').focus(); msg('Code sent to the board inbox. Check email (and spam) and enter it here within 10 minutes.'); }
+    try { await post('/otp/send', { site: location.search }); $('#send').hidden = true; $('#verify').hidden = false; $('#code').focus(); msg('Code sent to the board inbox. Check email (and spam) and enter it here within 15 minutes. Delivery can take a few minutes.'); }
     catch (e) { msg(e.message, true); }
     finally { btn && (btn.disabled = false); }
   };
