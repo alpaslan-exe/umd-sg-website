@@ -5,7 +5,7 @@ tagline: Your ideas. Our campus. Our future.
 status: active
 featured: true
 order: 1
-image: /media/initiatives/sg-hears-you-story.jpg
+image: /media/initiatives/sg-hears-you-banner.jpg
 cta_label: Join the SG Hears You WhatsApp group
 cta_url: https://chat.whatsapp.com/CVUZUzfPf4lBclzPiUnqQr
 links:

@@ -5,7 +5,7 @@ tagline: Coming this fall
 status: upcoming
 featured: true
 order: 2
-image: /media/posts/gbb2026_slide3_5k.jpg
+image: /media/initiatives/charity-5k-flyer.jpg
 cta_label: Registration opening soon
 cta_url: https://www.instagram.com/studentgov_umd/
 ---
