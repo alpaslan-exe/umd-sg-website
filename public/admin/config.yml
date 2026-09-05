@@ -67,7 +67,7 @@ singletons:
           - { label: Schedule (e.g. "Mondays at 4:30 PM"), name: schedule, widget: string }
           - { label: Location, name: location, widget: string }
           - { label: Note, name: note, widget: text }
-      - { label: General contact email, name: contact_email, widget: string, pattern: ['^[^@\s]+@[^@\s]+\.[^@\s]+$', 'Must be an email address'] }
+      - { label: General contact email, name: contact_email, widget: string, type: email }
       - { label: General contact name, name: contact_name, widget: string }
       - { label: Join URL (VictorsLink), name: join_url, widget: string }
       - { label: Linktree URL, name: linktree_url, widget: string }
@@ -161,7 +161,7 @@ collections:
           - { label: "Secretaries", value: secretaries }
         default: directors
       - { label: Display order, name: order, widget: number, value_type: int, default: 50 }
-      - { label: Email (umich.edu), name: email, widget: string, required: false, pattern: ['^$|^[^@\s]+@[^@\s]+\.[^@\s]+$', 'Must be an email address'] }
+      - { label: Email (umich.edu), name: email, widget: string, type: email, required: false }
       - { label: Photo (square, ≥ 800px), name: photo, widget: image, required: false, media_folder: public/media/board, public_folder: /media/board }
       - { label: Pronouns, name: pronouns, widget: string, required: false }
       - { label: Year (e.g. Junior), name: year, widget: string, required: false }
