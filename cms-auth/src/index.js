@@ -242,7 +242,11 @@ async function handleAccessAuth(request, env) {
     return accessPage(env, { provider, site, token: env.GITHUB_TOKEN });
   } catch (err) {
     console.warn('access verify failed', err.message);
-    return accessPage(env, { provider, site, error: 'Your sign-in could not be verified. Close this window and try again.' });
+    const m = /^email (.+) not allowed$/.exec(err.message);
+    const error = m
+      ? `You signed in to Cloudflare as <strong>${m[1].replace(/[<>&]/g, '')}</strong>, which is not an editor address. Sign out of Cloudflare Access (open <a href="/cdn-cgi/access/logout">/cdn-cgi/access/logout</a>), then sign in with the board list address.`
+      : `Your sign-in could not be verified (${err.message.replace(/[<>&]/g, '')}). Close this window and try again.`;
+    return accessPage(env, { provider, site, error });
   }
 }
 

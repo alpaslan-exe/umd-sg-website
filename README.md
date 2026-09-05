@@ -32,14 +32,16 @@ The site is live about two minutes later.
 
 1. **Enable GitHub Pages** for this repo: Settings → Pages → Source: *GitHub Actions*. The
    workflow in `.github/workflows/deploy.yml` does the rest.
-2. **CMS sign-in** (one-time, ~15 minutes, all free tiers). Board members sign in with a
-   one-time code emailed to the board list `Dearbornsg.board@umich.edu`; no GitHub accounts or
-   passwords. The authenticator lives in [`cms-auth/`](cms-auth/README.md) and runs on Cloudflare
-   Workers. Follow that README: Cloudflare login, Brevo sender + API key, a bot GitHub token,
-   `npm run deploy`, then set `backend.base_url` in `public/admin/config.yml`.
-   Fallback until then: *Sign In Using Access Token* with a fine-grained PAT.
-3. **Access control** = membership of the `Dearbornsg.board` MCommunity group. Anyone who can read
-   that list can sign in, so keep it current at every turnover and rotate the bot token.
+2. **CMS sign-in** — DONE (2026-09-04). Board members click *Sign in with GitHub* on `/admin/`,
+   enter `dearbornsg.board@umich.edu` on the Cloudflare page, and paste the one-time PIN that
+   lands in the board inbox. No GitHub accounts or passwords. Under the hood: Cloudflare Access
+   (team `steep-mountain-0d4e.cloudflareaccess.com`) protects the `umdsg-cms-auth` Worker, which
+   verifies Cloudflare's signed login token and hands the CMS a repo-scoped GitHub token. Details
+   and turnover steps in [`cms-auth/README.md`](cms-auth/README.md).
+3. **Access control** = membership of the `Dearbornsg.board` MCommunity group (Access policy allows
+   only that address; the Worker double-checks it). Anyone who can read that list can sign in, so
+   keep the group current at every turnover, and regenerate the GitHub token
+   (`npm run secret:github` in `cms-auth/`) when the Director of Technology changes.
 4. **Make the Google Calendar public.** In Google Calendar → the "UM-Dearborn Student Government"
    calendar → *Settings and sharing* → *Access permissions* → *Make available to public* (see
    all event details). Until then the embed shows a sign-in prompt and the "Next up" list is
