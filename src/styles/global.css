@@ -42,7 +42,8 @@ p { margin: 0 0 1em; }
 .section--navy { background: var(--navy); color: var(--white); }
 .section--navy h1, .section--navy h2, .section--navy h3 { color: var(--white); }
 .section--navy .lede { color: rgba(255, 255, 255, 0.82); }
-.section--navy a { color: var(--maize); }
+.section--navy a:not(.btn) { color: var(--maize); }
+.section--navy .btn--maize { color: var(--navy); }
 .section--white { background: var(--white); }
 
 /* skip link */
